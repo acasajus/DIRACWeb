@@ -43,8 +43,9 @@ class DiracWebApp( PylonsApp ):
 
       try:
         __import__( fullModuleName )
-      except ImportError:
-        self.__log.info( "Cannot import %s" % fullModuleName )
+      except ImportError, excp:
+        if str( excp ).find( "No module named" ) == -1:
+          self.__log.exception( "Cannot import %s: %s" % ( fullModuleName, str( excp ) ) )
         continue
       if hasattr( sys.modules[ fullModuleName ], '__controller__' ):
         mycontroller = getattr( sys.modules[ fullModuleName ],
