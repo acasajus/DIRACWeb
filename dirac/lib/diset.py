@@ -4,13 +4,17 @@ import dirac.lib.credentials as credentials
 from DIRAC.Core.DISET.RPCClient import RPCClient
 from DIRAC.Core.DISET.TransferClient import TransferClient
 from DIRAC.FrameworkSystem.Client.UserProfileClient import UserProfileClient
+from DIRAC.ConfigurationSystem.Client.Helpers import Registry
 
 def __prepareArgs( kwargs ):
-  if credentials.getUserDN():
-    kwargs[ 'delegatedGroup' ] =  str( credentials.getSelectedGroup() )
-    kwargs[ 'delegatedDN' ] = str( credentials.getUserDN() )
+  userDN = credentials.getUserDN()
+  if userDN:
+    if Registry.getUsernameForDN( userDN )[ 'OK' ]:
+      kwargs[ 'delegatedDN' ] = str( userDN )
+      kwargs[ 'delegatedGroup' ] = str( credentials.getSelectedGroup() )
   kwargs[ 'useCertificates' ] = True
   kwargs[ 'setup' ] = credentials.getSelectedSetup()
+  print kwargs
   return kwargs
 
 def getRPCClient( *args, **kwargs ):
